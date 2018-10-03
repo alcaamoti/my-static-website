@@ -1,0 +1,24 @@
+#Request root permissions to the TravisCI runtime environment
+sudo: required
+#Tell TravisCI that we're using docker to run our tests
+services:
+    - docker
+#Build our test Docker container
+before_install:
+  - docker build -t my-static-website-test -f Dockerfile.test .
+
+#Run our test Docker container
+script:
+  - docker run my-static-website-test
+
+#Build our deployment container
+before_deploy:
+  - docker build -t my-static-website .
+
+#Run our deployment container via shell script if committing to the master branch
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash ./scripts/deploy.sh
+  on:
+    branch: master
